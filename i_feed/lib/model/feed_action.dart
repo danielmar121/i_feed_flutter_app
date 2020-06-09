@@ -22,10 +22,12 @@ class FeedAction {
   });
 
   Map<String, dynamic> toJson() => {
-        'actionId': actionId.toJson(),
+        'actionId': actionId == null ? null : actionId.toJson(),
         'type': type,
-        'element': element.toJson(),
-        'createdTimestamp': createdTimestamp.toIso8601String(),
+        'element': {'elementId': element.toJson()},
+        'createdTimestamp': createdTimestamp == null
+            ? null
+            : createdTimestamp.toIso8601String(),
         'invokedBy': invokedBy.toJson(),
         'actionAttributes': actionAttributes,
       };

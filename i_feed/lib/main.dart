@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './screen/main_screen.dart';
+import './screen/new_user_screen.dart';
+import './screen/login_screen.dart';
+import './screen/map_screen.dart';
+import './screen/water_bowl_details_screen.dart';
+import './screen/food_bowl_details_screen.dart';
+import './screen/feeding_area_details_screen.dart';
+import './screen/add_water_bowl_screen.dart';
+import './screen/add_food_bowl_screen.dart';
+
 import './provider/elements.dart';
 import './provider/users.dart';
 import './provider/actions.dart';
@@ -24,20 +32,24 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'MyShop',
+        title: 'iFeed',
         theme: ThemeData(
-          primarySwatch: Colors.purple,
+          primarySwatch: Colors.green,
           accentColor: Colors.deepOrange,
           fontFamily: 'Lato',
         ),
-        home: MainScreen(),
-        // routes: {
-        //   ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-        //   CartScreen.routeName: (ctx) => CartScreen(),
-        //   OrdersScreen.routeName: (ctx) => OrdersScreen(),
-        //   UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-        //   EditProductScreen.routeName: (ctx) => EditProductScreen(),
-        // },
+        home: LoginScreen(),
+        routes: {
+          AddFoodBowlScreen.routeName: (ctx) => AddFoodBowlScreen(),
+          AddWaterBowlScreen.routeName: (ctx) => AddWaterBowlScreen(),
+          FeedingAreaDetailsScreen.routeName: (ctx) =>
+              FeedingAreaDetailsScreen(),
+          FoodBowlDetailsScreen.routeName: (ctx) => FoodBowlDetailsScreen(),
+          WaterBowlDetailsScreen.routeName: (ctx) => WaterBowlDetailsScreen(),
+          NewUserScreen.routeName: (ctx) => NewUserScreen(),
+          LoginScreen.routeName: (ctx) => LoginScreen(),
+          MapScreen.routeName: (ctx) => MapScreen(),
+        },
       ),
     );
   }

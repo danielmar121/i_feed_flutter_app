@@ -9,7 +9,7 @@ class FeedElement {
   String type;
   String name;
   bool active;
-  DateTime createdTimestamp;
+  String createdTimestamp;
   CreatedBy createdBy;
   Location location;
   Map<String, dynamic> elementAttributes;
@@ -26,13 +26,13 @@ class FeedElement {
   });
 
   Map<String, dynamic> toJson() => {
-        'actionId': elementId.toJson(),
+        'element': {'elementId': elementId.toJson()},
         'type': type,
         'name': name,
         'active': active,
-        'element': element.toJson(),
-        'createdTimestamp': createdTimestamp.toIso8601String(),
-        'invokedBy': invokedBy.toJson(),
-        'actionAttributes': actionAttributes,
+        'createdTimestamp': createdTimestamp,
+        'createdBy': createdBy.toJson(),
+        'location': location.toJson(),
+        'elementAttributes': elementAttributes,
       };
 }

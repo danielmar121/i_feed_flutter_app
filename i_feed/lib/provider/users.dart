@@ -8,123 +8,88 @@ import '../model/details/user_details.dart';
 import '../model/details/user_id.dart';
 import '../model/details/user_role.dart';
 import '../model/feed_user.dart';
+import '../model/http_exception.dart';
 
 class Users with ChangeNotifier {
-  List<FeedUser> _users = [
-    FeedUser(
-        userId: UserId(
-          domain: "domain",
-          email: "email",
-        ),
-        role: UserRole.ADMIN,
-        username: "username",
-        avatar: "avatar")
-  ];
+  final String appDomain = "2020b.eylon.mizrahi";
+  FeedUser _thisUser;
+  // final hostAndPort = 'http://10.0.0.3:8083'; // wifi connection
+  final hostAndPort = 'http://10.0.2.2:8083'; // localhost
 
-  UserDetails newUser = UserDetails(
-    email: "email",
-    role: UserRole.ADMIN,
-    username: "username",
-    avatar: "avatar",
-  );
-
-  List<FeedUser> get users {
-    return [..._users];
+  FeedUser get user {
+    return _thisUser;
   }
 
-  Future<void> createUser() async {
-    const url = 'http://10.0.2.2:8083/acs/users';
+  Future<void> login(String email) async {
+    final url = hostAndPort + '/acs/users/login/$appDomain/$email';
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+      );
+      var responseBody = json.decode(response.body);
+      print(responseBody);
+      if (responseBody['error'] != null) {
+        throw HttpException(responseBody['error']['message']);
+      }
+      _thisUser = FeedUser(
+          userId: UserId(
+              domain: responseBody['userId']['domain'],
+              email: responseBody['userId']['email']),
+          role: EnumToString.fromString(
+              UserRole.values, json.decode(response.body)['role']),
+          username: responseBody['username'],
+          avatar: responseBody['avatar']);
+
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
+
+  void logOut() {
+    _thisUser = null;
+  }
+
+  Future<void> updateUser(FeedUser updateUserDetails) async {
+    final url = hostAndPort +
+        '/acs/users/${updateUserDetails.userId.domain}/${updateUserDetails.userId.email}';
+    try {
+      await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(updateUserDetails.toJson()),
+      );
+      _thisUser = updateUserDetails;
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
+
+  Future<void> createUser(FeedUser newFeedUser) async {
+    final url = hostAndPort + '/acs/users';
     try {
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
-        body: json.encode({
-          'email': newUser.email,
-          'role': EnumToString.parse(newUser.role),
-          'username': newUser.username,
-          'avatar': newUser.avatar,
-        }),
+        body: json.encode(
+          UserDetails(
+                  email: newFeedUser.userId.email,
+                  role: newFeedUser.role,
+                  username: newFeedUser.username,
+                  avatar: newFeedUser.avatar)
+              .toJson(),
+        ),
       );
+      var responseBody = json.decode(response.body);
+      if (responseBody['error'] != null) {
+        throw HttpException(responseBody['error']['message']);
+      }
       print(json.decode(response.body));
-      _users[0].role = EnumToString.fromString(
-          UserRole.values, json.decode(response.body)['role']);
-      _users[0].avatar = json.decode(response.body)['avatar'];
-      _users[0].username = json.decode(response.body)['username'];
-      _users[0].userId = UserId(
-        domain: json.decode(response.body)['userId']['domain'],
-        email: json.decode(response.body)['userId']['email'],
-      );
-
-      notifyListeners();
-    } catch (error) {
-      print(error);
-      throw error;
-    }
-  }
-
-  Future<void> login() async {
-    const url =
-        'http://10.0.2.2:8083/acs/users/login/2020b.eylon.mizrahi/email';
-    try {
-      final response = await http.get(
-        url,
-        headers: {"Content-Type": "application/json"},
-      );
-      print(json.decode(response.body));
-      notifyListeners();
-    } catch (error) {
-      print(error);
-      throw error;
-    }
-  }
-
-  Future<void> getAllUsers() async {
-    const url =
-        'http://10.0.2.2:8083/acs/admin/users/2020b.eylon.mizrahi/email';
-    try {
-      final response = await http.get(
-        url,
-        headers: {"Content-Type": "application/json"},
-      );
-      print(json.decode(response.body));
-      notifyListeners();
-    } catch (error) {
-      print(error);
-      throw error;
-    }
-  }
-
-  Future<void> deleteAllUsers() async {
-    final url =
-        'http://10.0.2.2:8083/acs/admin/users/2020b.eylon.mizrahi/email';
-    try {
-      final response = await http.delete(
-        url,
-        headers: {"Content-Type": "application/json"},
-      );
-      // print(json.decode(response.body));
-      notifyListeners();
-    } catch (error) {
-      print(error);
-      throw error;
-    }
-  }
-
-  Future<void> updateUser() async {
-    final url =
-        'http://10.0.2.2:8083/acs/users/${_users[0].userId.domain}/${_users[0].userId.email}';
-    try {
-      final response = await http.put(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({
-          'userId': UserId(domain: "daniel", email: "email"),
-          'role': EnumToString.parse(UserRole.ADMIN),
-          'username': "test username",
-          'avatar': "test avatar",
-        }),
-      );
-      // print(json.decode(response.body));
       notifyListeners();
     } catch (error) {
       print(error);
